@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz Sinh Nhật</title>
+  <!-- Import Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6C63FF;
+      --secondary-color: #F5F5F5;
+      --btn-bg: #6C63FF;
+      --btn-hover: #5751d9;
+      --card-bg: #FFFFFF;
+      --text-color: #333333;
+      --progress-bg: #E0E0E0;
+      --progress-fill: #6C63FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      animation: fadeIn 0.5s ease-in;
+    }
+    .progress-bar {
+      width: 100%;
+      background: var(--progress-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      height: 12px;
+    }
+    .progress {
+      width: 0;
+      height: 100%;
+      background: var(--progress-fill);
+      transition: width 0.4s ease;
+    }
+    #question {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    #options button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--btn-bg);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #options button:hover {
+      background: var(--btn-hover);
+    }
+    #result {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 20px;
+    }
+    #result button {
+      margin-top: 12px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: var(--btn-bg);
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    #result button:hover {
+      background: var(--btn-hover);
+    }
+    input#vigenereKey {
+      padding: 8px;
+      font-size: 16px;
+      width: 60%;
+      max-width: 200px;
+      margin-right: 8px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    img {
+      max-width: 100%;
+      margin: 20px auto;
+      display: block;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Quiz Sinh Nhật</h1>
+    <div id="quiz" class="card">
+      <div class="progress-bar"><div class="progress" id="progress"></div></div>
+      <p id="question"></p>
+      <div id="options"></div>
+    </div>
+    <div id="result"></div>
+
+    <!-- Ảnh khi trả lời sai -->
+    <img id="failureImage" src="failure.jpg" alt="Thất bại" style="display:none;">
+    <!-- Ảnh khi vượt qua quiz -->
+    <img id="successImage" src="success.png" alt="Chúc mừng" style="display:none;">
+  </div>
+
+  <script>
+    const questions = [
+      { q: "Câu 1: Họ và tên mối tình đầu của bạn là gì?", opts: ["Cấn Hoàng Ngọc Linh","Cấn Thị Linh","Cấn Thùy Linh","Cấn Thị Thùy Linh"] },
+      { q: "Câu 2: Ngày sinh của Linh giấu tên là?", opts: ["16/07","16/08","16/09","16/10"] },
+      { q: "Câu 3: Trong phần giới thiệu trên Facebook mối tình đầu của bạn là chữ gì?", opts: ["mình mời cưới","tập ngủ trước 11h","nhớ người yêu cũ","mình quay lại nhé"] },
+      { q: "Câu 4: Tên người yêu hiện tại của người yêu cũ bạn là gì?", opts: ["Lê Viết Phước Đức","Trần Lê An Đức","Kiều Việt Sơn","Đỗ Thanh Hiếu"] },
+      { q: "Câu 5: Bài hát nổi bật trên Facebook mối tình đầu của bạn tên là gì?", opts: ["Đom đóm","Sóng gió","Nằm bên anh","Là một thằng con trai"] },
+      { q: "Câu 6: Tên tài khoản Instagram của người yêu cũ bạn là gì?", opts: ["_jstlinh","_anductl.68_","elenaeyes_","vibeby_b"] },
+      { q: "Câu 7: Người yêu cũ bạn đã set hẹn hò với người yêu hiện tại trên Facebook vào ngày nào?", opts: ["06/08/2024","11/02/2024","01/06/2024","16/01/2025"] },
+      { q: "Câu 8: Facebook người yêu cũ bạn có bao nhiêu bạn bè?", opts: ["430-440","440-450","450-460","<400"] },
+      { q: "Câu 9: Tên Facebook bạn tạo để giấu người yêu cũ nhắn tin là gì?", opts: ["Nguyễn Tuân","Nguyen Tuan","Tuấn Nguyễn","Thuy Linh"] },
+      { q: "Câu 10: やまてください có nghĩa là gì trong Tiếng Anh?", opts: ["Please stop","Please continue","Be quiet","Fuck you"] }
+    ];
+    const answers = ["C","C","B","D","C","A","B","A","B","A"];
+    const letters = ["A","B","C","D"];
+    const ciphertext = `Ttcik uvkfaqtk mb ran!!!\nV aair ran neitll nx utbil, eaorek, yebqgqek, angplbfq taw nknoq.\nB yhhx lhg lb fgvu.\nMttade ybk nxvgs t ctdm by yr lhgmu.`;
+    let current = 0;
+
+    function loadQuestion() {
+      document.getElementById("result").innerHTML = "";
+      document.getElementById("failureImage").style.display = "none";
+      document.getElementById("successImage").style.display = "none";
+      document.getElementById("quiz").style.display = "block";
+
+      // Cập nhật tiến độ
+      const percent = (current/questions.length)*100;
+      document.getElementById("progress").style.width = percent + "%";
+
+      const q = questions[current];
+      document.getElementById("question").textContent = q.q;
+      const optsDiv = document.getElementById("options");
+      optsDiv.innerHTML = "";
+      q.opts.forEach((opt,i) => {
+        const btn = document.createElement("button");
+        btn.textContent = `${letters[i]}. ${opt}`;
+        btn.addEventListener("click", () => checkAnswer(letters[i]));
+        optsDiv.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(choice) {
+      if (choice === answers[current]) {
+        current++;
+        if (current < questions.length) loadQuestion();
+        else showSuccess();
+      } else showFailure();
+    }
+
+    function showFailure() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("failureImage").style.display = "block";
+      document.getElementById("result").innerHTML = `
+        <p>Bạn vẫn còn yêu người yêu cũ???, hãy chơi lại và làm thật tốt để chứng minh điều ngược lại</p>
+        <button onclick="restart()">Chơi lại</button>
+      `;
+    }
+
+    function showSuccess() {
+      document.getElementById("quiz").style.display = "none";
+      document.getElementById("successImage").style.display = "block";
+      document.getElementById("result").innerHTML = `
+        <p>Nhập key để giải mã thư chúc mừng:</p>
+        <input type="text" id="vigenereKey" placeholder="Nhập key" />
+        <button onclick="decrypt()">Giải mã</button>
+
+        <pre id="ciphertext" style="white-space: pre-wrap; margin-top:20px; border:1px solid #ccc; padding:10px;">
+${ciphertext}
+        </pre>
+
+        <pre id="plaintext" style="white-space: pre-wrap; margin-top:20px; font-weight:bold;"></pre>
+      `;
+    }
+
+    function restart() {
+      current = 0;
+      loadQuestion();
+    }
+
+    function decrypt() {
+      const key = document.getElementById("vigenereKey").value.trim();
+      if (!key) return alert("Vui lòng nhập key!");
+      let pt = "";
+      let ki = 0;
+      const A = "A".charCodeAt(0);
+      for (let i=0; i < ciphertext.length; i++) {
+        const c = ciphertext[i];
+        const code = c.toUpperCase().charCodeAt(0);
+        if (code>=65 && code<=90) {
+          const k = key[ki % key.length].toUpperCase().charCodeAt(0) - A;
+          const p = (code - A - k + 26) % 26 + A;
+          pt += (c===c.toUpperCase()) ? String.fromCharCode(p) : String.fromCharCode(p).toLowerCase();
+          ki++;
+        } else pt += c;
+      }
+      document.getElementById("plaintext").textContent = pt;
+    }
+
+    // Khởi chạy lần đầu
+    loadQuestion();
+  </script>
+</body>
+</html>
